@@ -44,7 +44,7 @@ class DivaArchive
 	def registerClient()
 
 
-		response = @client.call(:register_client, message: {'appName': "diva", 'locName': "pippo", 'process_id': rand(1000)})
+		response = @client.call(:register_client, message: {'appName': "MaM", 'locName': "MaM_diva", 'process_id': rand(1000)})
 
 		if response.success?
 			@session_id = response.to_array(:register_client_response,:return)
@@ -118,7 +118,9 @@ class DivaArchive
 
 			res = RecursiveOpenStruct.new(response.body)
 			if(res.archive_object_response.return.diva_status=="1000")
-				"requestNumber: #{res.archive_object_response.return.request_number}"
+				request_number=res.archive_object_response.return.request_number
+				"requestNumber: #{request_number}"
+				return request_number
 			else
 				"#{res.archive_object_response.return.diva_status}"
 			end
