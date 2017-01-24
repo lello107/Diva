@@ -86,7 +86,7 @@ class DivaArchive
 		self.renew_registration?
 
 		objectName = objectName
-		objectCategory = "playout" 
+		#objectCategory = "playout" 
 		source = "ISILON_migrazione"
 		mediaName = "GRID"
 		filesPathRoot = "\\\\192.168.54.224\\MigrazioneArchivio\\RestoreDiva"
