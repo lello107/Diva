@@ -105,7 +105,7 @@ class DivaArchive
 				'source': source,
 				'mediaName': mediaName,
 				'filesPathRoot': filesPathRoot,
-				'fileNamesList': objectName,
+				'fileNamesList': fileNamesList,
 				'qualityOfService': qualityOfService,
 				'priorityLevel': priorityLevel,
 				'comments': comments,
@@ -169,7 +169,7 @@ class DivaArchive
 				status = Diva::DivaStatus::REQUEST[(res.get_request_info_response.return.diva_request_info.request_state).to_i]
 				abort_code= res.get_request_info_response.return.diva_request_info.abortion_reason.code
 				progress = res.get_request_info_response.return.diva_request_info.progress
-				info = res.get_request_info_response.return.diva_request_info.abortion_reason
+				info = res.get_request_info_response.return.diva_request_info.abortion_reason.description
 
 				return status, abort_code, progress, info
 			end
