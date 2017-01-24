@@ -155,6 +155,7 @@ class DivaArchive
 			res = RecursiveOpenStruct.new(response.body)
 			if(res.get_request_info_response.return.diva_status=="1000")
 				puts "#{res.get_request_info_response.return.diva_request_info}"
+				return res.get_request_info_response.return.diva_request_info.abortion_reason, res.get_request_info_response.return.diva_request_info.progress
 			end
 			#	"requestNumber: #{res.archive_object_response.return.request_number}"
 			#else
