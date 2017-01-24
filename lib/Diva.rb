@@ -135,9 +135,18 @@ class DivaArchive
 
 	end 
 
-
+	## get_request_info ##
+	#
+	#
+	## in: request (diva request number)
+	## out: status, abort_code, progress, info
+	##
+	##
 	def get_request_info(request)
 		self.renew_registration?
+
+
+
 		response = @client.call(:get_request_info,
 			
 			message: {
@@ -154,8 +163,15 @@ class DivaArchive
 
 			res = RecursiveOpenStruct.new(response.body)
 			if(res.get_request_info_response.return.diva_status=="1000")
+
 				puts "#{res.get_request_info_response.return.diva_request_info}"
-				return res.get_request_info_response.return.diva_request_info.abortion_reason.code, res.get_request_info_response.return.diva_request_info.progress,res.get_request_info_response.return.diva_request_info.abortion_reason
+				
+				status = Diva::DivaStatus::REQUEST[(res.get_request_info_response.return.diva_request_info.request_state).to_i]
+				abort_code= res.get_request_info_response.return.diva_request_info.abortion_reason.code
+				progress = res.get_request_info_response.return.diva_request_info.progress
+				info = res.get_request_info_response.return.diva_request_info.abortion_reason
+
+				return status, abort_code, progress, info
 			end
 			#	"requestNumber: #{res.archive_object_response.return.request_number}"
 			#else

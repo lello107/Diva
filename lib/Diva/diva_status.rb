@@ -44,6 +44,15 @@ class DivaStatus
 
 	}
 
+	REQUEST = {
+			3 => "DIVA_COMPLETED",
+		    4 => "DIVA_ABORTED",
+		    5 => "DIVA_CANCELLED",
+		    6 => "DIVA_UNKNOWN_STATE",
+		    11 => "DIVA_PARTIALLY_ABORTED",
+		    12 => "DIVA_RUNNING"		
+	}
+
 	def self.explain(code)
 		return CODES[code][0]
 	end
