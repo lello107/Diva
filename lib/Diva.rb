@@ -120,14 +120,17 @@ class DivaArchive
 			if(res.archive_object_response.return.diva_status=="1000")
 				request_number=res.archive_object_response.return.request_number
 				"requestNumber: #{request_number}"
-				return request_number
+				return res.archive_object_response.return.diva_status, request_number
+
 			else
-				"#{res.archive_object_response.return.diva_status}"
+				request_number=res.archive_object_response.return.request_number
+				return res.archive_object_response.return.diva_status, request_number
 			end
 
 	    elsif response.soap_fault?
 	 	
 			puts "#{response}"
+			#raise 
 		else
 			puts "#{response}"
 		end
