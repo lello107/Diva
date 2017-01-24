@@ -81,7 +81,7 @@ class DivaArchive
 	end 
 
 
-	def archiveObject()
+	def archiveObject(objectName,objectCategory)
 
 		self.renew_registration?
 
@@ -105,7 +105,7 @@ class DivaArchive
 				'source': source,
 				'mediaName': mediaName,
 				'filesPathRoot': filesPathRoot,
-				'fileNamesList': fileNamesList,
+				'fileNamesList': objectName+".mxf",
 				'qualityOfService': qualityOfService,
 				'priorityLevel': priorityLevel,
 				'comments': comments,
