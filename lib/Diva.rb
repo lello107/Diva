@@ -85,12 +85,12 @@ class DivaArchive
 
 		self.renew_registration?
 
-		objectName = "test"+rand(80).to_s
+		objectName = objectName
 		objectCategory = "playout" 
 		source = "ISILON_migrazione"
 		mediaName = "GRID"
 		filesPathRoot = "\\\\192.168.54.224\\MigrazioneArchivio\\RestoreDiva"
-		fileNamesList = "test.mxf"
+		fileNamesList = objectName + ".mxf"
 		qualityOfService = 3
 		priorityLevel = 77
 		comments = "Ruby webservices archive"
@@ -105,7 +105,7 @@ class DivaArchive
 				'source': source,
 				'mediaName': mediaName,
 				'filesPathRoot': filesPathRoot,
-				'fileNamesList': objectName+".mxf",
+				'fileNamesList': objectName,
 				'qualityOfService': qualityOfService,
 				'priorityLevel': priorityLevel,
 				'comments': comments,
