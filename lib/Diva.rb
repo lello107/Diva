@@ -28,18 +28,33 @@ class DivaArchive
 			pretty_print_xml true
 		end
 
-		if(session_id==nil || session_timestamp==nil)
-			puts "new session"
+
+		@session_info =  File.join( File.dirname(__FILE__), '../session.yml' )
+		diva_session = open(@session_info) {|f| YAML.load(f) }
+		@session_id = diva_session["session_id"]
+		@session_timestamp = diva_session["session_timestamp"]
+
+		if(@session_timestamp==nil || @session_id==nil)
 			registerClient
-		else
-			time=Time.parse(session_timestamp)
-			puts "use #{session_id} time passed: #{(Time.now - time)/60} "
-			@session_id =session_id
-			@session_timestamp = time
 		end
+
+		# if(session_id==nil || session_timestamp==nil)
+		# 	puts "new session"
+		# 	registerClient
+		# else
+		# 	time=Time.parse(session_timestamp)
+		# 	puts "use #{session_id} time passed: #{(Time.now - time)/60} "
+		# 	@session_id =session_id
+		# 	@session_timestamp = time
+		# end
 
 	end
 
+
+	def read_yaml
+		diva_session = open(@session_info) {|f| YAML.load(f) }
+		return diva_session
+	end
 
 	def registerClient()
 
@@ -47,9 +62,22 @@ class DivaArchive
 		response = @client.call(:register_client, message: {'appName': "MaM", 'locName': "MaM_diva", 'process_id': rand(1000)})
 
 		if response.success?
-			@session_id = response.to_array(:register_client_response,:return)
+			@session_id = response.to_array(:register_client_response,:return)[0]
 			@session_timestamp=Time.now
 			puts @session_timestamp
+
+			begin
+				diva = {"session_id"=>@session_id,"session_timestamp"=>@session_timestamp}
+				#root_path = Rails.root == nil ? "" : Rails.root
+				
+				File.open(@session_info,"w") {|f| YAML.dump(diva,f)}
+			rescue Exception=>ex
+				puts "#{Time.now} error: #{ex}"
+				#session_info = "log/session.yml"
+				#File.open(session_info,"w") {|f| YAML.dump(diva,f)}
+			else
+				puts "file written!"
+			end
 
 		elsif response.soap_fault?
 			puts "response soap_fault"
@@ -202,6 +230,7 @@ class DivaArchive
 		if(((Time.now-@session_timestamp)/60 > 28) || @session_id==nil)
 			puts "new registration request"
 			registerClient()
+
 		else
 			puts "using #{@session_id}"
 			return false
