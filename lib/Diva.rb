@@ -203,8 +203,9 @@ class DivaArchive
 				progress = res.get_request_info_response.return.diva_request_info.progress
 				info = res.get_request_info_response.return.diva_request_info.abortion_reason.description
 				object_summary = res.get_request_info_response.return.diva_request_info.object_summary
+				request_type = res.get_request_info_response.return.diva_request_info.request_type
 
-				return status, abort_code, progress, info, object_summary
+				return status, abort_code, progress, info, object_summary, Diva::DivaStatus::REQUEST_TYPES[request_type.to_i]
 			end
 			#	"requestNumber: #{res.archive_object_response.return.request_number}"
 			#else
