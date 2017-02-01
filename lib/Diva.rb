@@ -97,12 +97,12 @@ class DivaArchive
 			#puts doc 
 			#puts response.body
 			@archive_system = Nokogiri::XML(response.body.to_xml)  
-
+			return response.body
 	    elsif response.soap_fault?
 	 	
-			puts "#{response}"
+			return "#{response}"
 		else
-			puts "#{response}"
+			return "#{response}"
 		end
 
 
