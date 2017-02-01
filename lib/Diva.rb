@@ -11,10 +11,11 @@ class DivaArchive
 	require 'nokogiri'
 	require "active_support/all"
 
-	attr_reader :session_id, :client, :archive_system, :session_timestamp, :job
+	attr_reader :session_id, :client, :archive_system, :session_timestamp, :job, :register
 
-	def initialize(job=nil, session_id=nil,session_timestamp=nil)
+	def initialize(job=nil, session_id=nil,session_timestamp=nil, register=nil)
 		@job=job
+		@register = register==nil ? "MaM" : register
 		@client = Savon::Client.new do
 		    wsdl "http://192.168.50.70:9763/services/DIVArchiveWS_SOAP_1.0?wsdl"
 		    env_namespace :soapenv
@@ -59,7 +60,7 @@ class DivaArchive
 	def registerClient()
 
 
-		response = @client.call(:register_client, message: {'appName': "MaM", 'locName': "MaM_diva", 'process_id': rand(1000)})
+		response = @client.call(:register_client, message: {'appName': @register, 'locName': "#{@register}_diva", 'process_id': rand(1000)})
 
 		if response.success?
 			@session_id = response.to_array(:register_client_response,:return)[0]
@@ -201,8 +202,9 @@ class DivaArchive
 				abort_code= res.get_request_info_response.return.diva_request_info.abortion_reason.code
 				progress = res.get_request_info_response.return.diva_request_info.progress
 				info = res.get_request_info_response.return.diva_request_info.abortion_reason.description
+				object_summary = res.get_request_info_response.return.diva_request_info.object_summary
 
-				return status, abort_code, progress, info
+				return status, abort_code, progress, info, object_summary
 			end
 			#	"requestNumber: #{res.archive_object_response.return.request_number}"
 			#else
