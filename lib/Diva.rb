@@ -1,6 +1,7 @@
 require "Diva/version"
 require "Diva/diva_status"
 require 'recursive-open-struct'
+require "awesome_print"
 
 module Diva
 #HTTPI.adapter = :net_http
@@ -109,6 +110,75 @@ class DivaArchive
 
 	end 
 
+	def restoreObject(*args)
+		self.renew_registration?
+
+		sessionCode = @session_id
+		objectName = args[0][:objectName]
+		objectCategory  = args[0][:objectCategory] == nil ? 'playout' : args[0][:objectCategory]
+		destination = args[0][:destination] == nil ? 'ISILON_migrazione' : args[0][:objectCategory]
+		filesPathRoot  = args[0][:filesPathRoot]  == nil ? '\\\\192.168.54.224\\MigrazioneArchivio\\RestoreDiva' : args[0][:filesPathRoot]
+		qualityOfService  = args[0][:qualityOfService] == nil ? 4 : args[0][:qualityOfService]
+		priorityLevel  = args[0][:priorityLevel] == nil ? 50 : args[0][:priorityLevel]
+		
+		message = {
+			'sessionCode': sessionCode,
+			'objectName': objectName,
+			'objectCategory': objectCategory,
+			'destination': destination,
+			'filesPathRoot': filesPathRoot,
+			'qualityOfService': qualityOfService,
+			'priorityLevel': priorityLevel,
+			'restoreOptions': ''		
+		}
+		 
+		ap message
+		response = @client.call(:restore_object, message: message)
+			
+		#destination,filesPathRoot,qualityOfService,priorityLevel,restoreOptions
+
+		if response.success?
+			res = RecursiveOpenStruct.new(response.body)
+			if(res.restore_object_response.return.diva_status=="1000")
+				ap res
+				return res.restore_object_response.return.request_number
+			else
+				return false
+			end
+		else
+			return false
+		end		
+
+	end
+
+
+	def getObjectInfo(objectName,objectCategory)
+		self.renew_registration?
+
+		response = @client.call(:get_object_info,	
+			message: {
+
+				'sessionCode': @session_id,
+				'objectName': objectName,
+				'objectCategory': objectCategory,
+
+			})
+
+
+		if response.success?
+			res = RecursiveOpenStruct.new(response.body)
+			if(res.get_object_info_response.return.diva_status=="1000")
+				ap res.get_object_info_response.return.info
+				return res.get_object_info_response.return.info
+			else
+				ap res.get_object_info_response.return.info
+				return res.get_object_info_response.return.info				
+			end
+		else
+			return false
+		end		
+
+	end
 
 	def archiveObject(objectName,objectCategory)
 
