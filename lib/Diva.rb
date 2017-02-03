@@ -164,7 +164,8 @@ class DivaArchive
 
 			})
 
-
+		ap message
+		
 		if response.success?
 			res = RecursiveOpenStruct.new(response.body)
 			if(res.get_object_info_response.return.diva_status=="1000")
@@ -237,6 +238,37 @@ class DivaArchive
 
 	end 
 
+	def cancelRequest(request)
+		self.renew_registration?
+		usage = "missing arg! exp cancelRequest(27009)"
+
+		ap usage; return false if request == nil or request.class == "Hash"
+
+		message = {
+			'sessionCode': @session_id,
+			'requestNumber': request,
+		}
+
+		ap message
+
+		response = @client.call(:cancel_request, message: message)
+
+		if response.success?
+			puts response.body
+			res = RecursiveOpenStruct.new(response.body)
+			if(res.cancel_request_response.return.diva_status=="1000")
+				return Diva::DivaStatus::CODES[1000]
+			else
+				return Diva::DivaStatus::CODES[res.cancel_request_response.return.diva_status.to_i]
+			end
+		else
+			return false
+		end
+
+
+	end
+
+
 	## get_request_info ##
 	#
 	#
@@ -274,8 +306,12 @@ class DivaArchive
 				info = res.get_request_info_response.return.diva_request_info.abortion_reason.description
 				object_summary = res.get_request_info_response.return.diva_request_info.object_summary
 				request_type = res.get_request_info_response.return.diva_request_info.request_type
+				current_priority = res.get_request_info_response.return.diva_request_info.current_priority
 
-				return status, abort_code, progress, info, object_summary, Diva::DivaStatus::REQUEST_TYPES[request_type.to_i]
+				result={status: status, abort_code: abort_code, progress: progress, info: info, object_summary: object_summary, request_type: Diva::DivaStatus::REQUEST_TYPES[request_type.to_i],current_priority: current_priority}
+
+				return result
+				
 			end
 			#	"requestNumber: #{res.archive_object_response.return.request_number}"
 			#else
