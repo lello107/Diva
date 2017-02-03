@@ -164,7 +164,7 @@ class DivaArchive
 
 			})
 
-		ap message
+		#ap message
 		
 		if response.success?
 			res = RecursiveOpenStruct.new(response.body)
