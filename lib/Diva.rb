@@ -222,7 +222,7 @@ class DivaArchive
 			res = RecursiveOpenStruct.new(response.body)
 			if(res.multiple_restore_object_response.return.diva_status=="1000")
 				ap res
-				return res.restore_object_response.return.request_number
+				return res.multiple_restore_object_response.return.request_number
 			else
 				return false
 			end
