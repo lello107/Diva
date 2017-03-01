@@ -1,5 +1,5 @@
 ---
 session_id: !ruby/string:Nori::StringWithAttributes
-  str: 8467b371-8700-4b62-ae67-814cb5a510cd
+  str: a27041e5-076f-4c5e-8485-7fde5e6015d5
   attributes: {}
-session_timestamp: 2017-02-03 10:54:55.134138000 +01:00
+session_timestamp: 2017-03-01 15:16:16.525943000 +01:00

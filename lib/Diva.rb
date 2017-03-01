@@ -22,7 +22,7 @@ class DivaArchive
 		    env_namespace :soapenv
 		    namespace_identifier :xsd
 		    namespace "http://interaction.api.ws.diva.fpdigital.com/xsd"
-		    soap_version 2
+		    soap_version 1
 		    convert_request_keys_to :lower_camelcase 
 		    element_form_default :qualified
 		    raise_errors false
@@ -118,7 +118,7 @@ class DivaArchive
 		objectCategory  = args[0][:objectCategory] == nil ? 'playout' : args[0][:objectCategory]
 		destination = args[0][:destination] == nil ? 'ISILON_migrazione' : args[0][:objectCategory]
 		filesPathRoot  = args[0][:filesPathRoot]  == nil ? '\\\\192.168.54.224\\MigrazioneArchivio\\RestoreDiva' : args[0][:filesPathRoot]
-		qualityOfService  = args[0][:qualityOfService] == nil ? 4 : args[0][:qualityOfService]
+		qualityOfService  = args[0][:qualityOfService] == nil ? 0 : args[0][:qualityOfService]
 		priorityLevel  = args[0][:priorityLevel] == nil ? 50 : args[0][:priorityLevel]
 		
 		message = {
@@ -151,6 +151,86 @@ class DivaArchive
 
 	end
 
+	def to_diva_hash(message)
+    	builder = Builder::XmlMarkup.new
+    	#builder.instruct!(:xml, encoding: "UTF-8")
+    	builder.tag!("soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:xsd='http://interaction.api.ws.diva.fpdigital.com/xsd' xmlns:xsd1='http://model.api.ws.diva.fpdigital.com/xsd'") do 
+	    	builder.soapenv :Header
+	    	builder.tag!('soapenv:Body') do 
+		    	builder.tag!('xsd:multipleRestoreObject') do 
+		    		builder.xsd :sessionCode, message[:sessionCode]
+		    		builder.xsd :objectName, message[:objectName]
+		    		builder.xsd :objectCategory, message[:objectCategory]
+
+
+			    	message[:destinations].each do |dest|
+					    builder.tag!('xsd:destinations') { |b|
+					      b.xsd1 :destination, dest[:destination]
+					      b.xsd1 :filePathRoot, dest[:filePathRoot]
+					    }
+					end
+
+					builder.xsd :qualityOfService, message[:qualityOfService]
+					builder.xsd :priorityLevel, message[:priorityLevel]
+					builder.xsd :restoreOptions, message[:restoreOptions]
+				end #end request
+			end #end body
+		end #end envelop
+		
+    	return builder.target!
+  end
+
+	def multipleRestoreObject(*args)
+		self.renew_registration?
+
+		sessionCode = @session_id
+		objectName = args[0][:objectName]
+		objectCategory  = args[0][:objectCategory] == nil ? 'playout' : args[0][:objectCategory]
+		
+		filesPathRoot  = args[0][:filesPathRoot]  == nil ? '\\\\192.168.54.224\\MigrazioneArchivio\\RestoreDiva' : args[0][:filesPathRoot]
+		qualityOfService  = args[0][:qualityOfService] == nil ? 0 : args[0][:qualityOfService]
+		priorityLevel  = args[0][:priorityLevel] == nil ? 50 : args[0][:priorityLevel]
+		
+		destinations = args[0][:destinations] == nil ? {destination: 'ISILON_migrazione', filePathRoot: filesPathRoot} : args[0][:destinations]
+
+		message = {
+			'sessionCode': sessionCode,
+			'objectName': objectName,
+			'objectCategory': objectCategory,
+			'destinations': destinations,
+			#'filesPathRoot': filesPathRoot,
+			'qualityOfService': qualityOfService,
+			'priorityLevel': priorityLevel,
+			'restoreOptions': ''		
+		}
+		 
+
+		ap message
+		
+		new_message = self.to_diva_hash(message) 
+
+		ap new_message
+		response = @client.call(:multiple_restore_object, xml: new_message)
+		#response = @client.call(:multiple_restore_object) do |soap|
+		#	ap "SOAP: #{soap}"
+		#	ap body
+			#soap.body = to_diva_hash(message)
+		#end
+		#destination,filesPathRoot,qualityOfService,priorityLevel,restoreOptions
+
+		if response.success?
+			res = RecursiveOpenStruct.new(response.body)
+			if(res.multiple_restore_object_response.return.diva_status=="1000")
+				ap res
+				return res.restore_object_response.return.request_number
+			else
+				return false
+			end
+		else
+			return false
+		end		
+
+	end
 
 	def getObjectInfo(objectName,objectCategory)
 		self.renew_registration?
