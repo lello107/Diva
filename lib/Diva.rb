@@ -26,7 +26,7 @@ class DivaArchive
 		    convert_request_keys_to :lower_camelcase 
 		    element_form_default :qualified
 		    raise_errors false
-		    log true
+		    log false
 			pretty_print_xml true
 		end
 
@@ -249,7 +249,7 @@ class DivaArchive
 		if response.success?
 			res = RecursiveOpenStruct.new(response.body)
 			if(res.get_object_info_response.return.diva_status=="1000")
-				ap res.get_object_info_response.return.info
+				#ap res.get_object_info_response.return.info
 				return res.get_object_info_response.return.info
 			else
 				ap res.get_object_info_response.return.info
