@@ -118,7 +118,7 @@ class DivaArchive
 		objectCategory  = args[0][:objectCategory] == nil ? 'playout' : args[0][:objectCategory]
 		destination = args[0][:destination] == nil ? 'ISILON_migrazione' : args[0][:destination]
 		filesPathRoot  = args[0][:filesPathRoot]  == nil ? '' : args[0][:filesPathRoot]
-		qualityOfService  = args[0][:qualityOfService] == nil ? 0 : args[0][:qualityOfService]
+		qualityOfService  = args[0][:qualityOfService] == nil ? 4 : args[0][:qualityOfService]
 		priorityLevel  = args[0][:priorityLevel] == nil ? 50 : args[0][:priorityLevel]
 		
 		message = {
