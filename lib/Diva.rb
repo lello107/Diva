@@ -180,6 +180,58 @@ class DivaArchive
     	return builder.target!
   end
 
+
+	def transferFiles(*args)
+		self.renew_registration?
+
+		sessionCode = @session_id
+ 
+		source  = args[0][:source] == nil ? 'ISILON_migrazione' : args[0][:source]		
+		sourcePathRoot  = args[0][:sourcePathRoot]  == nil ? 'reds_backup' : args[0][:sourcePathRoot]
+		fileNamesList  = args[0][:fileNamesList] == nil ? '' : args[0][:fileNamesList]
+		destination  = args[0][:destination] == nil ? 'ISILON_migrazione' : args[0][:destination]
+		destinationPathRoot  = args[0][:destinationPathRoot] == nil ? '' : args[0][:destinationPathRoot]
+		priorityLevel  = args[0][:priorityLevel] == nil ? 50 : args[0][:priorityLevel]
+		
+
+		message = {
+			'sessionCode': sessionCode,
+			'source': source,
+			'sourcePathRoot': sourcePathRoot,
+			'fileNamesList': fileNamesList,
+			'destination': destination,
+			'destinationPathRoot': destinationPathRoot,
+			'priorityLevel': priorityLevel	
+		}
+		 
+
+		ap message
+		
+		#new_message = self.to_diva_hash(message) 
+
+	
+		response = @client.call(:transfer_files, message: message)
+		#response = @client.call(:multiple_restore_object) do |soap|
+		#	ap "SOAP: #{soap}"
+		#	ap body
+			#soap.body = to_diva_hash(message)
+		#end
+		#destination,filesPathRoot,qualityOfService,priorityLevel,restoreOptions
+
+		if response.success?
+			res = RecursiveOpenStruct.new(response.body)
+			if(res.transfer_files_response.return.diva_status=="1000")
+				ap res
+				return res.transfer_files_response.return.request_number
+			else
+				return false
+			end
+		else
+			return false
+		end		
+
+	end
+
 	def multipleRestoreObject(*args)
 		self.renew_registration?
 
@@ -259,6 +311,41 @@ class DivaArchive
 			return false
 		end		
 
+	end
+
+
+	def getObjectDetailsList(objectName,objectCategory,isFirstTime, listPosition,maxListSize)
+		self.renew_registration?
+		response = @client.call(:get_object_details_list,	
+			message: {
+
+				'sessionCode': @session_id,
+				'isFirstTime': isFirstTime,
+				'initialTime': 0,
+				'listType': 2,
+				'objectsListType': 1,
+				'listPosition': listPosition,
+				'maxListSize': maxListSize,
+				'objectName': objectName,
+				'objectCategory': objectCategory,
+				'mediaName': '*',
+				'levelOfDetail': 2
+
+			})
+
+		if response.success?
+			res = RecursiveOpenStruct.new(response.body)
+			puts res
+			#if(res.get_object_details_list_response.return.diva_status=="1000")
+			#	#ap res.get_object_info_response.return.info
+			#	return res.get_object_info_response.return.info
+			#else
+			#	ap res.get_object_info_response.return.info
+			#	return res.get_object_info_response.return.info				
+			#end
+		else
+			return false
+		end						
 	end
 
 	def archiveObject(objectName,objectCategory)
