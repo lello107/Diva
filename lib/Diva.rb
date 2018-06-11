@@ -120,6 +120,7 @@ class DivaArchive
 		filesPathRoot  = args[0][:filesPathRoot]  == nil ? '' : args[0][:filesPathRoot]
 		qualityOfService  = args[0][:qualityOfService] == nil ? 4 : args[0][:qualityOfService]
 		priorityLevel  = args[0][:priorityLevel] == nil ? 50 : args[0][:priorityLevel]
+		restoreOptions = args[0][:restoreOptions] == nil ? '' : args[0][:restoreOptions]
 		
 		message = {
 			'sessionCode': sessionCode,
@@ -129,7 +130,7 @@ class DivaArchive
 			'filesPathRoot': filesPathRoot,
 			'qualityOfService': qualityOfService,
 			'priorityLevel': priorityLevel,
-			'restoreOptions': ''		
+			'restoreOptions': restoreOptions
 		}
 		 
 		ap message
